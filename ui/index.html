@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>KI Bildstudio Lokal v0.5.0 - by Bytebeat Flux</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="logo.png" class="brand-logo" alt="Bytebeat Flux">
+    <div class="brand-txt">
+      <h1>KI Bildstudio Lokal</h1>
+      <span>v0.5.0 &bull; by Bytebeat Flux Software</span>
+    </div>
+  </div>
+  <div class="tabs" id="navTabs" hidden>
+    <button class="tab act" data-tab="studio">Studio</button>
+    <button class="tab" data-tab="models">Modelle &amp; Katalog</button>
+    <button class="tab" data-tab="batch">Nacht-Pipeline</button>
+    <button class="tab" data-tab="settings">Einstellungen</button>
+  </div>
+  <div class="hdrr" id="srvBar" hidden>
+    <select id="modelSel" class="sel-sm"></select>
+    <button id="loadBtn" class="btn primary sm">Modell laden</button>
+    <button id="unloadBtn" class="btn sec sm" hidden>Entladen</button>
+    <div id="srvBadge" class="badge idle">Kein Modell geladen</div>
+  </div>
+</header>
+<div class="wrap">
+  <div id="viewWizard" class="panel" style="max-width:1240px;margin:0 auto" hidden>
+    <div class="lblrow">
+      <h2>Einrichtung &amp; Systemeinstellungen (Bytebeat Flux)</h2>
+      <span id="wizSavedToast" style="font-size:12px;color:#22c55e" hidden>Gespeichert ✓</span>
+    </div>
+    <div class="wiz-grid">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <h3>Hardware &amp; KI-Engine (Vulkan / GPU)</h3>
+          <div id="hwInfo" style="font-size:13px;color:#94a3b8">Pruefe Hardware...</div>
+          <div class="frow">
+            <select id="wizBackend" style="flex:1">
+              <option value="auto">Automatisch (empfohlen)</option>
+              <option value="vulkan">Vulkan (AMD / Intel / Universal)</option>
+              <option value="cuda12">NVIDIA CUDA 12</option>
+              <option value="cpu">CPU (Ohne GPU)</option>
+            </select>
+            <button id="wizEngBtn" class="btn primary">Engine einrichten / Update</button>
+          </div>
+          <div id="engProg" hidden>
+            <div class="barbg"><div id="engBar" class="bar"></div></div>
+            <div id="engTxt" style="font-size:12px;color:#94a3b8;margin-top:4px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>1. Ausgabe-Ordner (flach, ohne Unterordner)</h3>
+          <div class="frow">
+            <input id="wizOut" placeholder="z. B. C:\Users\Name\Pictures\AI-Output">
+            <button id="pickOut" class="btn sec sm">Waehlen</button>
+            <button id="openOutSet" class="btn sec sm">Oeffnen</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>2. Modell-Ordner (1 Unterordner pro Modell)</h3>
+          <div class="frow">
+            <input id="wizMod" placeholder="z. B. C:\AI-Models\Image">
+            <button id="pickMod" class="btn sec sm">Waehlen</button>
+            <button id="scanBtn" class="btn sec sm">Scannen</button>
+            <button id="openModSet" class="btn sec sm">Oeffnen</button>
+          </div>
+          <div id="scanOut" style="font-size:12px;color:#94a3b8"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>3. Bilderquellen, Such-Standard &amp; Lokale DB</h3>
+        <div class="row">
+          <label class="tile"><input id="srcWiki" type="checkbox" checked> Wikimedia Commons</label>
+          <label class="tile"><input id="srcOpen" type="checkbox" checked> Openverse</label>
+          <label class="tile"><input id="srcWeb" type="checkbox" checked> Web-Bildersuche</label>
+          <label class="tile"><input id="srcSafe" type="checkbox"> SafeSearch (Familienfilter)</label>
+          <label class="tile"><input id="srcLicFree" type="checkbox"> Nur freie Lizenzen (CC0)</label>
+          <div class="frow"><label style="margin:0;white-space:nowrap">Standard-Treffer</label><select id="srcDefLimit"><option value="12">12</option><option value="24" selected>24</option><option value="40">40</option></select></div>
+        </div>
+        <div class="row">
+          <div><label>Standard-Bildtyp</label><select id="srcDefType"><option value="all">Alle Typen</option><option value="photo">Foto / Real</option><option value="art">Illustration / Kunst</option><option value="clipart">Logo / Grafik</option><option value="bw">Historisch / S/W</option></select></div>
+          <div><label>Standard-Format</label><select id="srcDefAspect"><option value="all">Alle Formate</option><option value="wide">Querformat</option><option value="tall">Hochformat</option><option value="square">Quadrat</option></select></div>
+        </div>
+        <label style="margin-top:4px">Lokale Bilderdatenbank</label>
+        <div class="frow">
+          <input id="wizDb" placeholder="Optional: Ordner mit Referenzfotos">
+          <button id="pickDb" class="btn sec sm">Waehlen</button>
+          <button id="idxBtn" class="btn sec sm">Indizieren (dHash)</button>
+        </div>
+        <div id="dbOut" style="font-size:12px;color:#38bdf8"></div>
+        <details class="adv-box">
+          <summary>Erweitert (Profis: eigene Webseiten, Domains &amp; API-Keys)</summary>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label>Eigene Webseiten / Domains (eine pro Zeile)</label>
+            <textarea id="wizUrls" placeholder="z. B. https://de.wikipedia.org/wiki/Buick"></textarea>
+            <div class="row">
+              <input id="keyBrave" placeholder="Optional: Brave Search API-Key">
+              <input id="keyPexels" placeholder="Optional: Pexels API-Key">
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+    <button id="wizSave" class="btn primary">Einrichtung speichern &amp; Studio starten</button>
+  </div>
+    <div id="viewStudio" class="grid2" hidden>
+    <section class="panel">
+      <div>
+        <label>Aufgabe waehlen (Einsteiger-Kacheln)</label>
+        <div class="task-grid">
+          <button class="ktile act" data-preset=""><b>Neues Bild</b><small>Freie Szene / Foto</small></button>
+          <button class="ktile" data-preset="Koloriere dieses Schwarz-Weiss-Foto realistisch ein, natuerliche authentische Farben und Hauttoene, erhalte Gesichter und Details originalgetreu"><b>S/W kolorieren</b><small>Altes Foto einfaerben</small></button>
+          <button class="ktile" data-preset="Restauriere und verbessere dieses alte Foto, scharfe Details, entferne Kratzer und Rauschen, natuerliches Licht"><b>Foto retten</b><small>Schaerfen &amp; reinigen</small></button>
+          <button class="ktile" data-preset="Minimalistisches modernes Vektor-Logo, klare scharfe Kanten, zentriert auf weissem Hintergrund"><b>Logo &amp; .SVG</b><small>Klare Vektorgrafik</small></button>
+          <button class="ktile" data-preset="Professionelles Studio-Produktfoto, weiche Ausleuchtung, sauberer schlichter Hintergrund, hohe Detailschaerfe"><b>Produktfoto</b><small>Sauber freigestellt</small></button>
+        </div>
+      </div>
+      <div>
+        <div class="lblrow"><label style="margin:0">Bildbeschreibung (Prompt)</label><button id="clrBtn" class="btn sec sm">Leeren</button></div>
+        <textarea id="prompt" placeholder="Beschreibe dein Wunschbild oder waehle oben eine Kachel..."></textarea>
+        <div class="chips" style="margin-top:6px">
+          <button class="chip" data-add="photorealistic, natural lighting, sharp focus, 8k detail">+ Fotorealistisch</button>
+          <button class="chip" data-add="cinematic lighting, dramatic atmosphere">+ Kino-Licht</button>
+          <button class="chip" data-add="35mm analog film grain, warm realistic colors">+ 35mm Film</button>
+          <button class="chip" data-add="clean digital illustration, vibrant colors">+ Illustration</button>
+          <button class="chip" data-add="architectural photography, realistic materials, daylight">+ Architektur</button>
+          <button class="chip" data-add="studio product photography, softbox lighting, clean background">+ Produkt</button>
+          <button class="chip" data-add="crisp readable typography, balanced poster layout">+ Poster &amp; Text</button>
+          <button class="chip" data-add="clean flat vector graphic, sharp edges, solid background">+ Vektor</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="lblrow"><label style="margin:0">Referenz-Suche (ohne Browser)</label><button id="searchClrBtn" class="btn sec sm">Treffer leeren</button></div>
+        <div class="frow"><input id="searchQ" placeholder="Suchbegriff (leer = Prompt nutzen)..."><button id="searchBtn" class="btn primary sm">Suchen</button></div>
+        <div class="search-opts">
+          <select id="srchSrc"><option value="all">Alle Quellen</option><option value="web">Websuche</option><option value="wikimedia">Wikimedia</option><option value="openverse">Openverse</option><option value="pexels">Pexels (API)</option><option value="brave">Brave (API)</option><option value="local">Lokal-Archiv</option><option value="custom">Eigene Seiten</option></select>
+          <select id="srchType"><option value="all">Alle Typen</option><option value="photo">Foto / Real</option><option value="art">Illustration / Kunst</option><option value="clipart">Logo / Clipart</option><option value="transparent">Freigestellt / PNG</option><option value="bw">Historisch / S/W</option></select>
+          <select id="srchAspect"><option value="all">Alle Formate</option><option value="wide">Querformat</option><option value="tall">Hochformat</option><option value="square">Quadrat</option></select>
+          <select id="srchLimit"><option value="12">12 Treffer</option><option value="24" selected>24 Treffer</option><option value="40">40 Treffer</option></select>
+        </div>
+        <div class="search-toggles"><label><input id="srchLicFree" type="checkbox"> Nur freie Lizenzen (CC0)</label><label><input id="srchSafe" type="checkbox"> SafeSearch</label></div>
+        <div id="searchInfo" style="font-size:12px;color:#94a3b8"></div>
+        <div id="webImgs" class="webimgs"></div>
+      </div>
+      <div class="card">
+        <div class="lblrow"><label style="margin:0">Aktive Referenzbilder (Klick = Zoom)</label><div class="frow"><button id="simBtn" class="btn sec sm">Aehnliche im Lokal-Archiv</button><button id="clrRefs" class="btn sec sm">Leeren</button></div></div>
+        <div id="drop" class="drop">Eigene Bilder (z. B. S/W-Foto) hier ablegen oder klicken</div>
+        <input id="fileIn" type="file" accept="image/*" multiple hidden>
+        <div id="refWarn" style="font-size:12px;color:#fbbf24" hidden></div><div id="refs" class="refs"></div>
+      </div>
+      <div class="row">
+        <div><label>Bildformat</label><select id="size"><option value="1024x1024">1024 x 1024 (Quadrat 1:1)</option><option value="1344x768">1344 x 768 (16:9)</option><option value="768x1344">768 x 1344 (9:16)</option><option value="1152x896">1152 x 896 (4:3)</option><option value="896x1152">896 x 1152 (3:4)</option><option value="1280x640">1280 x 640 (16:8)</option><option value="1024x512">1024 x 512 (Breit)</option><option value="768x768">768 x 768 (Test)</option></select></div>
+        <div><label>Varianten &amp; Tempo</label><div class="frow"><select id="batchCount" style="width:120px"><option value="1">1 Bild</option><option value="2">2 Varianten</option><option value="4">4 Varianten</option></select><button type="button" class="chip qset" data-steps="8" data-cfg="1.0">Turbo (8)</button><button type="button" class="chip qset" data-steps="16" data-cfg="2.5">Mittel (16)</button><button type="button" class="chip qset" data-steps="28" data-cfg="4.0">Detail (28)</button></div></div>
+      </div>
+      <details class="adv-box"><summary>Erweitert (Profis: Schritte, CFG, Seed &amp; Negativ-Prompt)</summary><div style="display:flex;flex-direction:column;gap:10px"><div class="row"><div><label>Schritte</label><input id="steps" type="number" value="8"></div><div><label>CFG-Skala</label><input id="cfg" type="number" step="0.1" value="1.0"></div></div><div><label>Seed (-1 = Zufaellig)</label><input id="seed" type="number" value="-1"></div><div><label>Negativ-Prompt</label><input id="neg" placeholder="blurry, watermark, deformed"></div></div></details>
+      <div class="frow"><button id="genBtn" class="btn primary" style="flex:1" disabled>Bild erstellen</button><button id="cancelBtn" class="btn danger" hidden>Abbrechen</button></div>
+    </section>
+    <section class="panel stage-panel">
+      <div class="lblrow"><div id="genMsg" style="font-size:13px;color:#94a3b8">Oben Modell waehlen und auf „Modell laden“ klicken.</div><button id="openOutTop" class="btn sec sm">Ausgabe-Ordner oeffnen</button></div>
+      <div id="genProg" class="barbg" hidden><div id="genBar" class="bar"></div></div>
+      <div class="stage"><div id="empty" class="empty-guide"><img src="logo.png" class="stage-logo" alt=""><br><strong>Bereit fuer dein naechstes Motiv</strong><br>Ausgabeordner: <span id="outLabel"></span><div class="empty-steps"><span class="estep">1. Oben Modell laden</span><span class="estep">2. Kachel oder Prompt waehlen</span><span class="estep">3. Bild erstellen</span></div></div><img id="outImg" hidden></div>
+      <div id="outTools" class="frow" hidden><button id="jpgBtn" class="btn primary sm">Als .JPG speichern</button><button id="svgBtn" class="btn sec sm">Als .SVG speichern</button><button id="toRefBtn" class="btn sec sm">Als Referenz nutzen</button><button id="restoreBtn" class="btn sec sm">Prompt &amp; Seed laden</button><span id="outMeta" style="font-size:12px;color:#94a3b8;margin-left:auto"></span></div>
+      <div id="hist" class="hist"></div>
+    </section>
+  </div>
+  <div id="viewModels" class="panel" hidden>
+    <div class="lblrow">
+      <h2>Modell-Katalog (nur passende Modelle fuer deine Hardware)</h2>
+      <button id="rescanBtn" class="btn sec sm">Modell-Ordner neu scannen</button>
+    </div>
+    <div id="catHwBanner" class="hw-banner">Lade Hardware-Profil...</div>
+    <div class="frow">
+      <input id="catSearch" placeholder="Passende KI-Modelle suchen (z. B. Foto, Vektor, Turbo, FLUX, Edit)...">
+      <select id="catFilter" style="width:220px">
+        <option value="all">Alle passenden</option>
+        <option value="fast">Nur schnelle (Turbo)</option>
+        <option value="ref">Mit Referenzbild-Edit</option>
+        <option value="inst">Nur installierte</option>
+      </select>
+    </div>
+    <div id="dlQueue" class="dl-queue" hidden></div>
+    <div id="catGrid" class="kgrid"></div>
+    <div id="scanHints" style="font-size:12px;color:#94a3b8"></div>
+  </div>
+  <div id="viewBatch" class="panel" style="max-width:1160px;margin:0 auto" hidden>
+    <div class="lblrow">
+      <h2>Ueber-Nacht-Batch-Pipeline</h2>
+      <div class="chips">
+        <button type="button" class="chip bpreset" data-p="colorize black and white photo, restore natural authentic colors, realistic skin tones, preserve original faces and details" data-st="4">Vorlage: S/W kolorieren</button>
+        <button type="button" class="chip bpreset" data-p="restore old damaged photo, remove scratches and noise, crisp natural detail, preserve faces" data-st="6">Vorlage: Foto retten</button>
+        <button type="button" class="chip bpreset" data-p="clean studio product photo, softbox lighting, pure clean background, sharp product detail" data-st="8">Vorlage: Produkt-Batch</button>
+      </div>
+    </div>
+    <div class="wiz-grid">
+      <div class="card">
+        <label>1. Eingabeordner mit Ausgangsfotos</label>
+        <div class="frow"><input id="batIn" placeholder="Ordner mit Ausgangsbildern waehlen..."><button id="pickBatIn" class="btn sec">Ordner waehlen</button></div>
+        <label>2. Modell &amp; Aufgabe (Prompt)</label>
+        <select id="batModel"></select>
+        <textarea id="batPrompt" style="min-height:110px">colorize black and white photo, restore natural authentic colors, realistic skin tones, preserve original faces and details</textarea>
+        <label>Negativ-Prompt (optional)</label>
+        <input id="batNeg" placeholder="blurry, distorted, artifacts">
+      </div>
+      <div class="card">
+        <h3>3. Zielformat &amp; Lauf-Optionen</h3>
+        <div class="row">
+          <div><label>Zielformat</label><select id="batSize"><option value="1024x1024">1024 x 1024</option><option value="1344x768">1344 x 768 (16:9)</option><option value="768x1344">768 x 1344 (9:16)</option><option value="1024x512">1024 x 512 (16:8)</option><option value="768x768">768 x 768 (Schneller)</option></select></div>
+          <div><label>Schritte / Max Referenz-Px</label><div class="frow"><input id="batSteps" type="number" value="4"><input id="batMaxPx" type="number" value="768"></div></div>
+        </div>
+        <label class="tile"><input id="batSkip" type="checkbox" checked> Bereits fertige Bilder ueberspringen (Resume)</label>
+        <div class="frow" style="margin-top:auto">
+          <button id="batStart" class="btn primary" style="flex:1">Nacht-Pipeline starten</button>
+          <button id="batStop" class="btn danger" hidden>Abbrechen</button>
+        </div>
+        <div id="batProg" hidden><div class="barbg"><div id="batBar" class="bar"></div></div><div id="batTxt" style="font-size:12px;color:#94a3b8;margin-top:4px"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="zoomModal" class="modal" hidden>
+  <img id="zoomImg">
+  <div class="frow"><button id="zoomPick" class="btn primary" hidden>+ Als Referenz uebernehmen</button><button id="zoomClose" class="btn sec">Schliessen (Esc)</button></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
+
+

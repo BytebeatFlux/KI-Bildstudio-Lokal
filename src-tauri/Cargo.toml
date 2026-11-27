@@ -1,0 +1,30 @@
+[package]
+name = "ki-bild-studio"
+version = "0.5.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+sysinfo = "0.33"
+dirs = "6"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+futures-util = "0.3"
+walkdir = "2"
+windows = { version = "0.61", features = ["Win32_Graphics_Dxgi"] }
+image = "0.25"
+rusqlite = { version = "0.43", features = ["bundled"] }
+scraper = "0.29"
+base64 = "0.22"
+urlencoding = "2"
+regex = "1"
+vtracer = "0.6"
+url = "2"
+

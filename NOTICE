@@ -1,0 +1,13 @@
+KI Bildstudio Lokal
+Copyright 2026 Bytebeat Flux (Bytebeat Flux Software)
+
+Dieses Projekt enthaelt Original-Code und Assets (inkl. Bytebeat Flux Logo) von Bytebeat Flux.
+Bei Weiterverbreitung oder Weiterentwicklung muessen dieser Copyright-Hinweis und die
+Attribution zu "Bytebeat Flux" erhalten bleiben.
+Das Logo ("logo.png" / "app_icon.png") und der Name "Bytebeat Flux" bleiben marken- und
+namensrechtlich vorbehalten (siehe Apache-2.0 Abschnitt 6).
+
+Drittanbieter-Komponenten:
+- stable-diffusion.cpp (leejet/stable-diffusion.cpp) - MIT License
+- Tauri v2 & Rust Crates - MIT / Apache-2.0
+- vtracer - MIT License
